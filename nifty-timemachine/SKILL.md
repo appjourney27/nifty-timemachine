@@ -24,14 +24,16 @@ good-looking replay does not change that.
 `${CLAUDE_SKILL_DIR}` is this skill's folder.
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/timemachine.py" orb ^NSEI                        # latest full session, 15-min opening range breakout
-python3 "${CLAUDE_SKILL_DIR}/timemachine.py" orb RELIANCE.NS --date 2026-10-29
-python3 "${CLAUDE_SKILL_DIR}/timemachine.py" run ^NSEI --date 2026-10-29 \
+python3 "${CLAUDE_SKILL_DIR}/timemachine.py" orb NIFTY                        # latest session with a breakout, 15-min opening range
+python3 "${CLAUDE_SKILL_DIR}/timemachine.py" orb RELIANCE --date 2026-10-29   # plain names mean NSE; add .BO for BSE
+python3 "${CLAUDE_SKILL_DIR}/timemachine.py" run NIFTY --date 2026-10-29 \
     --entry 22758.40 --stop 22701.27 --target 22815.53 --entry-time 9:40
 ```
 
 Flags: `--target-r` (default 1), `--replays` (default 10000), `--seed`
-(default 19), `--json`. Python 3.8+, nothing to install. Data: Yahoo
+(default 19), `--json`. Names: NIFTY, BANKNIFTY, SENSEX, or any stock such as
+RELIANCE (NSE) or RELIANCE.BO (BSE). On Windows use `python` if `python3` is
+missing. Python 3.8+, nothing to install. Data: Yahoo
 Finance's free 5-minute chart (60 days), unofficial, can lag.
 
 ## How it works
@@ -56,8 +58,8 @@ Finance's free 5-minute chart (60 days), unofficial, can lag.
 
 ## Steps
 
-1. Ask which stock (NSE ticker ending in `.NS`, or `^NSEI`) and whether to use
-   the opening range breakout or their own plan.
+1. Ask which stock or index, and whether to use the opening range breakout or
+   their own plan. Long trades only.
 2. Run the tool. Report, in this order: the odds, the 3:30 PM price range,
    the average R, the history line, then the verdict exactly as printed. Say
    the seed.

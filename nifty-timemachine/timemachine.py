@@ -6,15 +6,15 @@ Method inspired by the MIT-licensed day-trader-skill by Jake Schincariol,
 rewritten from scratch for NSE tickers (RELIANCE.NS, ^NSEI) and IST sessions.
 
 Usage:
-  python3 timemachine.py orb ^NSEI                      # latest full session, 15-min opening range breakout
-  python3 timemachine.py orb RELIANCE.NS --date 2026-10-29
+  python3 timemachine.py orb NIFTY                      # latest session with a breakout, 15-min opening range
+  python3 timemachine.py orb RELIANCE --date 2026-10-29  # plain names mean NSE; add .BO for BSE
   python3 timemachine.py run ^NSEI --date 2026-10-29 --entry 25810 --stop 25760 \
       --target 25860 --entry-time 10:05
   add --json for machine-readable output, --replays N, --seed N (default 19)
 
 Education only. A simulation from the last 60 days, not a prediction, not advice.
 """
-import argparse, json, random, sys, urllib.parse, urllib.request
+import argparse, json, random, subprocess, sys, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
 
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -22,8 +22,18 @@ SESSION_START = (9, 15)
 SESSION_BARS = 75          # 9:15 to 15:30 in 5-minute bars
 OR_BARS = 3                # 15-minute opening range: 9:15, 9:20, 9:25
 
+ALIASES = {"NIFTY": "^NSEI", "NIFTY50": "^NSEI", "NSEI": "^NSEI", "BANKNIFTY": "^NSEBANK", "NSEBANK": "^NSEBANK",
+           "SENSEX": "^BSESN", "BSESN": "^BSESN"}
+
 class TMError(Exception):
     pass
+
+def ticker(sym):
+    """NIFTY, RELIANCE or tcs.ns all become the ticker Yahoo expects."""
+    s = sym.strip().upper()
+    if s in ALIASES:
+        return ALIASES[s]
+    return s if s.startswith("^") or "." in s else s + ".NS"
 
 def slot(dt):
     """Bar index within the NSE session, or None if outside it."""
@@ -42,7 +52,12 @@ def fetch(sym):
     except urllib.error.HTTPError as e:
         raise TMError("Yahoo has no 5-minute chart for %s (HTTP %d). NSE stocks end in .NS, BSE in .BO, the Nifty 50 is ^NSEI. Renamed companies get new tickers." % (sym, e.code))
     except urllib.error.URLError as e:
-        raise TMError("could not reach Yahoo (%s). On a Mac with Homebrew Python, set SSL_CERT_FILE to a certificate bundle." % e.reason)
+        # Some Python installs have no certificates; curl ships with Mac and Windows.
+        try:
+            out = subprocess.run(["curl", "-sf", "-A", "Mozilla/5.0", url], capture_output=True, timeout=40, check=True)
+            data = json.loads(out.stdout)
+        except (OSError, ValueError, subprocess.SubprocessError):
+            raise TMError("could not reach Yahoo (%s). Check your internet and try again." % e.reason)
     res = (data.get("chart") or {}).get("result")
     if not res:
         raise TMError("Yahoo returned no data for %s" % sym)
@@ -64,7 +79,10 @@ def sessions(res):
         days.setdefault(dt.date().isoformat(), {})[i] = (o, h, l, c)
     # Yahoo leaves a few empty bars on quiet stocks; up to 3 are filled flat at the last close.
     full = {}
+    now = datetime.now(IST)
     for d, b in days.items():
+        if d == now.date().isoformat() and now.hour * 60 + now.minute < 15 * 60 + 35:
+            continue  # today is still trading
         if 0 not in b or len(b) < SESSION_BARS - 3:
             continue
         bars, pc = [], b[0][0]
@@ -131,8 +149,9 @@ def simulate(pool, plan, n, seed, window=2):
         closes.append(close); rs.append(r)
     closes.sort()
     pct = lambda q: closes[int(q * (len(closes) - 1))]
-    return {k: 100.0 * v / n for k, v in out.items()} | {
-        "median_close": pct(0.5), "p5": pct(0.05), "p95": pct(0.95), "avg_r": sum(rs) / n}
+    mc = {k: 100.0 * v / n for k, v in out.items()}
+    mc.update(median_close=pct(0.5), p5=pct(0.05), p95=pct(0.95), avg_r=sum(rs) / n)
+    return mc
 
 def history(days, target_r):
     h = {"sessions": len(days), "fired": 0, "target": 0, "stop": 0, "neither": 0, "r": 0.0}
@@ -188,11 +207,15 @@ def main(argv=None):
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
     try:
+        a.symbol = ticker(a.symbol)
         days = sessions(fetch(a.symbol))
         dates = list(days)
         if not dates:
             raise TMError("no full NSE sessions in the data")
         d = a.date or dates[-1]
+        if a.mode == "orb" and not a.date:
+            # Use the latest session where the rule actually fired.
+            d = next((x for x in reversed(dates) if orb_plan(days[x], a.target_r)), d)
         if d not in days:
             raise TMError("%s is not a full session in the last 60 days (have %s to %s)" % (d, dates[0], dates[-1]))
         before = [x for x in dates if x < d]
@@ -206,8 +229,11 @@ def main(argv=None):
         else:
             if None in (a.entry, a.stop, a.target, a.entry_time):
                 raise TMError("run needs --entry, --stop, --target and --entry-time")
-            h, m = map(int, a.entry_time.split(":"))
-            i = slot(datetime(2000, 1, 1, h, m))
+            try:
+                h, m = map(int, a.entry_time.split(":"))
+                i = slot(datetime(2000, 1, 1, h, m))
+            except ValueError:
+                raise TMError("--entry-time must look like 10:05 (IST)")
             if i is None or a.stop >= a.entry or a.target <= a.entry:
                 raise TMError("plan does not make sense (long only: stop < entry < target, time on the 5-minute grid)")
             plan = {"entry": a.entry, "stop": a.stop, "target": a.target, "entry_bar": i,

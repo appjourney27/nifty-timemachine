@@ -2,10 +2,12 @@
 
 A free Claude skill that replays an Indian intraday trade 10,000 times before you take it. Built for the Indian market on the 9:15 to 3:30 IST session:
 
-- NSE stocks: `HDFCBANK.NS`, `INFY.NS`, `IRFC.NS` (any ticker Yahoo Finance lists with `.NS`)
+- NSE stocks: `HDFCBANK`, `INFY`, `IRFC` (any stock Yahoo Finance lists on NSE)
 - BSE stocks: `RELIANCE.BO`
-- Indices: Nifty 50 `^NSEI`, Bank Nifty `^NSEBANK`, Sensex `^BSESN`
-- ETFs: `NIFTYBEES.NS`
+- Indices: `NIFTY`, `BANKNIFTY`, `SENSEX`
+- ETFs: `NIFTYBEES`
+
+It tests long (buy) trades only. It works on stocks and indices, not on option or futures contracts.
 
 The idea comes from the MIT-licensed [day-trader-skill](https://github.com/Jakeschincariol/day-trader-skill), which only works on US stocks. This version is written from scratch for India.
 
@@ -18,8 +20,8 @@ Needs Python 3.8 or newer, nothing else. No signup, no API key.
 ## Try it
 
 ```
-/nifty-timemachine ^NSEI
-/nifty-timemachine RELIANCE.NS
+/nifty-timemachine NIFTY
+/nifty-timemachine RELIANCE
 ```
 
 ## Example (Nifty 50, 29 Oct 2026, seed 19)
