@@ -11,18 +11,39 @@ It tests long (buy) trades only. It works on stocks and indices, not on option o
 
 The idea comes from the MIT-licensed [day-trader-skill](https://github.com/Jakeschincariol/day-trader-skill), which only works on US stocks. This version is written from scratch for India.
 
-## Install
+## Setup guide
 
-Paste this repo's link into Claude Code and say `install skill`. Or copy the `nifty-timemachine` folder into `~/.claude/skills/`.
+**Aapko chahiye:**
 
-Needs Python 3.8 or newer, nothing else. No signup, no API key.
+- **Claude Code:** Claude ka coding app (desktop app ya terminal). Skills isi mein chalti hain, aur iske liye Claude ka plan chahiye.
+- **Python 3.8 ya naya:** Mac mein aksar pehle se hota hai. Check karne ke liye Claude se bolo: "check if Python is installed". Nahi hai toh python.org se install karo.
 
-## Try it
+Koi API key nahi, koi signup nahi, kuch pay nahi karna data ke liye.
+
+**Step 1: Install karo.** Claude Code kholo, ye link paste karo aur bolo `install skill`:
+
+```
+https://github.com/appjourney27/nifty-timemachine
+```
+
+**Step 2: Chalao.** Claude se bolo, ya seedha type karo:
 
 ```
 /nifty-timemachine NIFTY
 /nifty-timemachine RELIANCE
 ```
+
+Aap normal bhasha mein bhi bol sakte ho: "Nifty pe time machine chalao". Skill turant nahi dikhe toh Claude Code band karke dobara kholo.
+
+**Step 3: Result samjho.**
+
+- **target first:** kitne replays mein target pehle laga
+- **stop first:** kitne replays mein stop loss pehle laga
+- **neither:** 3:30 PM tak dono nahi lage
+- **History:** yahi rule pichhle asli dinon mein kaisa chala
+- **Verdict:** seedha jawab, jaise "close to a coin flip"
+
+**Haath se install (optional):** repo download karo aur `nifty-timemachine` folder ko `~/.claude/skills/` mein copy karo.
 
 ## Example (Nifty 50, 29 Oct 2026, seed 19)
 
