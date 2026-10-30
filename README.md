@@ -13,37 +13,37 @@ The idea comes from the MIT-licensed [day-trader-skill](https://github.com/Jakes
 
 ## Setup guide
 
-**Aapko chahiye:**
+**What you need:**
 
-- **Claude Code:** Claude ka coding app (desktop app ya terminal). Skills isi mein chalti hain, aur iske liye Claude ka plan chahiye.
-- **Python 3.8 ya naya:** Mac mein aksar pehle se hota hai. Check karne ke liye Claude se bolo: "check if Python is installed". Nahi hai toh python.org se install karo.
+- **Claude Code:** Claude's coding app (desktop app or terminal). Skills run here, and it needs a Claude plan.
+- **Python 3.8 or newer:** Macs often have it already. To check, ask Claude: "check if Python is installed". If it's missing, install it from python.org.
 
-Koi API key nahi, koi signup nahi, kuch pay nahi karna data ke liye.
+No API key, no signup, and nothing to pay for the data.
 
-**Step 1: Install karo.** Claude Code kholo, ye link paste karo aur bolo `install skill`:
+**Step 1: Install.** Open Claude Code, paste this link and say `install skill`:
 
 ```
 https://github.com/appjourney27/nifty-timemachine
 ```
 
-**Step 2: Chalao.** Claude se bolo, ya seedha type karo:
+**Step 2: Run it.** Ask Claude, or type this directly:
 
 ```
 /nifty-timemachine NIFTY
 /nifty-timemachine RELIANCE
 ```
 
-Aap normal bhasha mein bhi bol sakte ho: "Nifty pe time machine chalao". Skill turant nahi dikhe toh Claude Code band karke dobara kholo.
+You can also ask in plain words: "Run the time machine on Nifty". If the skill doesn't show up, close Claude Code and open it again.
 
-**Step 3: Result samjho.**
+**Step 3: Read the result.**
 
-- **target first:** kitne replays mein target pehle laga
-- **stop first:** kitne replays mein stop loss pehle laga
-- **neither:** 3:30 PM tak dono nahi lage
-- **History:** yahi rule pichhle asli dinon mein kaisa chala
-- **Verdict:** seedha jawab, jaise "close to a coin flip"
+- **target first:** how many replays hit the target first
+- **stop first:** how many replays hit the stop loss first
+- **neither:** how many hit neither by 3:30 PM
+- **History:** how the same rule did on past real days
+- **Verdict:** the plain answer, such as "close to a coin flip"
 
-**Haath se install (optional):** repo download karo aur `nifty-timemachine` folder ko `~/.claude/skills/` mein copy karo.
+**Manual install (optional):** download the repo and copy the `nifty-timemachine` folder into `~/.claude/skills/`.
 
 ## Example (Nifty 50, 29 Oct 2026, seed 19)
 
